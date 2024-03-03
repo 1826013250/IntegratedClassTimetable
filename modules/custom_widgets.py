@@ -1,6 +1,7 @@
 from tkinter import Canvas, CENTER, Toplevel, Wm
+from tkinter.font import Font
 from tkinter.ttk import Label, Frame
-from typing import Union, List
+from typing import Union, List, Tuple
 
 
 class TransparentToplevel(Toplevel):
@@ -64,7 +65,7 @@ class TextedRectangle:
             text (str, optional): 嵌入的文字. Defaults to None.
             font (str, optional): 文字样式. Defaults to None.
             pad (int, optional): 组件间距（边框大小）. Defaults to 0.
-            transparent_color (_type_, optional): 窗口透明色. Defaults to None.
+            transparent_color (str, optional): 窗口透明色. Defaults to None.
         """
         self.root = root
         self.placeholder = placeholder
@@ -90,7 +91,24 @@ class TextedRectangle:
         self.text_window.wm_geometry(f"{self.width}x{self.height}"
                                      f"+{x + self.pad}+{y + self.pad}")
     
-    def update_widget(self, bgcolor=None, fgcolor=None, text=None, font=None, pad=None):
+    def update_widget(self,
+                      bgcolor: Tuple[str, int] = None,
+                      fgcolor: Tuple[str, int] = None,
+                      text: str = None,
+                      font: Font = None,
+                      pad: int = None):
+        """
+        更新组件内容
+        Args:
+            bgcolor (Tuple[str, int], optional): 背景色
+            fgcolor (Tuple[str, int], optional): 前景色
+            text (str, optional): 更改的文字
+            font (Font, optional): 更改的字体
+            pad (int, optional): 更改的组件间距
+
+        Returns:
+            None
+        """
         if bgcolor:
             self.bgcolor = bgcolor
         if fgcolor:
@@ -141,8 +159,16 @@ class TextedRectangle:
         self.text_label.place(relx=.5, rely=.5, anchor="center")
 
 
-class RectangleReady:
+class TextedRectangleReady:
     def __init__(self, root, rec_type: str, text: str, frame: Frame = None) -> None:
+        """
+        预配置的带文字的矩形
+        Args:
+            root ():
+            rec_type ():
+            text ():
+            frame ():
+        """
         self.root = root
         self.rec_type = rec_type
         self.text = text

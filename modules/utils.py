@@ -1,5 +1,5 @@
 from tkinter.font import Font
-from custom_widgets import TextedRectangle
+from modules.custom_widgets import TextedRectangle
 
 
 def convert_font(root, fontdict: dict):

@@ -1,12 +1,10 @@
 from tkinter import *
-from tkinter.ttk import *
 from sys import platform
 import ctypes
 from datetime import datetime
 
-from custom_widgets import *
-from settings import *
-from utils import *
+from modules.custom_widgets import *
+from modules.settings.general_settings import *
 
 ctypes.windll.shcore.SetProcessDpiAwareness(1)
 ScaleFactor = ctypes.windll.shcore.GetScaleFactorForDevice(0)
@@ -44,9 +42,9 @@ class MyWindow(Tk):
         self.bind("<Button-1>", lambda x: self.destroy())
 
     def __init_widgets(self):
-        self.info = RectangleReady(self, "info", self.settings.info)
+        self.info = TextedRectangleReady(self, "info", self.settings.info)
         self.need_resize.append(self.info)
-        self.title = RectangleReady(self, "title", self.settings.title)
+        self.title = TextedRectangleReady(self, "title", self.settings.title)
         self.need_resize.append(self.title)
 
     def __cycle_works(self):

@@ -36,8 +36,7 @@
       "begin_time": "16:10",
       "end_time": "16:50",
       "cycle": true,
-      "cycle_index": 0,
-      "cycle_class_index": 1  // 此处若为第一周，对应最上方，该节课为英语
+      "cycle_index": 1,// 此处若为第一周，对应最上方，该节课为英语
     }
   ]
 }

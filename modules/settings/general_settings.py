@@ -3,7 +3,7 @@ from os.path import exists
 from tkinter.messagebox import showerror
 from sys import exit
 from os import remove
-from utils import convert_font, export_font
+from modules.utils import convert_font, export_font
 
 
 class Settings:
