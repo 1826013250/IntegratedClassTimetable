@@ -11,11 +11,10 @@ class Settings:
                  root,
                  window_pad: tuple = None,
                  fonts: dict = None,
-                 widget_pad: int = 0,
+                 widget_pad: int = 1,
                  widget_heights: dict = None,
                  widget_widths: dict = None,
                  colors: dict = None,
-                 title: str = "课程表",
                  info: str = "%Y/%m/%d %a %H:%M",
                  debug: bool = False):
         self.root = root
@@ -48,9 +47,8 @@ class Settings:
             self.widget_heights = widget_heights
         else:
             self.widget_heights = {
-                "info": 50,
-                "title": 50,
-                "pairs": 50
+                "info": 60,
+                "pairs": 60
             }
         
         if widget_widths:
@@ -58,21 +56,24 @@ class Settings:
         else:
             self.widget_widths = {
                 "info": 400,
-                "title": 400,
-                "pairs": 200
+                "pairs_left": 200
             }
         
         if colors:
             self.colors = colors
         else:
             self.colors = {
-                "info_bg": ("black", .8),
+                "info_bg": ("black", .6),
                 "info_fg": ("white", 1),
-                "title_bg": ("black", .8),
-                "title_fg": ("white", 1)
+                "day_bg": ("black", .6),
+                "day_fg": ("white", 1),
+                "classes_time_bg": ("black", .6),
+                "classes_time_fg": ("white", 1),
+                "classes_name_bg": ("white", .2),
+                "classes_name_fg": ("white", 1),
+                "classes_progress": ("white", .6)
             }
             
-        self.title = title
         self.info = info
     
         
@@ -85,7 +86,6 @@ def dict2class(adict, root):
         adict["widget_heights"],
         adict["widget_widths"],
         adict["colors"],
-        adict["title"],
         adict["info"],
         adict["debug"]
     )
@@ -105,7 +105,6 @@ def class2dict(aclass: Settings):
         "widget_heights": aclass.widget_heights,
         "widget_widths": aclass.widget_widths,
         "colors": aclass.colors,
-        "title": aclass.title,
         "info": aclass.info,
         "debug": aclass.debug
     }

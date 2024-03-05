@@ -1,4 +1,5 @@
 {
+  "percentage": false,  // 以百分数（小数）形式返回课程剩余时间
   "time_duration_indexes": [  // 预定义时间段
     {
       "begin_time": "19:40",
@@ -10,33 +11,43 @@
     ["英语", "数学"],
     ["数学", "语文"]
   ],
-  "Monday": [
-    {
-      "begin_time": "18:40",  // 内部使用时间段
-      "end_time": "19:30",
-      "classname": "自习#1"  // 课程名称
-    },
-    {
-      "time_duration_index": 0,  // 使用预定义时间段
-      "classname": "自习#2"
-    },
-    {
-      "no_time_duration": true,  // 不设定时间段
-      "classname": "自习#3"
-    }
-  ],
-  "Saturday": [
-    {
-      "begin_time": "15:30",
-      "end_time": "16:00",
-      "cycle": true,  // 设定循环课程
-      "cycle_index": 0,  // 周期内的课程序数 -> 此处若为第一周，对应最上方，该节课为语文
-    },
-    {
-      "begin_time": "16:10",
-      "end_time": "16:50",
-      "cycle": true,
-      "cycle_index": 1,// 此处若为第一周，对应最上方，该节课为英语
-    }
-  ]
+  "cycle_class_count_start": "1998-5-21",
+  "classes": {
+    "Monday": [
+      {
+        "begin_time": "18:40",
+        // 内部使用时间段
+        "end_time": "19:30",
+        "classname": "自习#1"
+        // 课程名称
+      },
+      {
+        "time_duration_index": 0,
+        // 使用预定义时间段
+        "classname": "自习#2"
+      },
+      {
+        "no_time_duration": true,
+        // 不设定时间段
+        "classname": "自习#3"
+      }
+    ],
+    "Saturday": [
+      {
+        "begin_time": "15:30",
+        "end_time": "16:00",
+        "cycle": true,
+        // 设定循环课程
+        "cycle_index": 0,
+        // 周期内的课程序数 -> 此处若为第一周，对应最上方，该节课为语文
+      },
+      {
+        "begin_time": "16:10",
+        "end_time": "16:50",
+        "cycle": true,
+        "cycle_index": 1,
+        // 此处若为第一周，对应最上方，该节课为英语
+      }
+    ]
+  }
 }

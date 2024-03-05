@@ -1,10 +1,10 @@
 from tkinter import *
 from sys import platform
 import ctypes
-from datetime import datetime
 
 from modules.custom_widgets import *
 from modules.settings.general_settings import *
+from modules.settings.classes_settings import *
 
 ctypes.windll.shcore.SetProcessDpiAwareness(1)
 ScaleFactor = ctypes.windll.shcore.GetScaleFactorForDevice(0)
@@ -15,6 +15,7 @@ class MyWindow(Tk):
         super().__init__()
         self.version = "0.0"
         self.settings = load_settings(self)
+        self.classes = load_classes_settings()
         self.tk.call('tk', 'scaling', ScaleFactor / 75)
         self.__decorate_window()
         self.__bind_events()
@@ -44,12 +45,17 @@ class MyWindow(Tk):
     def __init_widgets(self):
         self.info = TextedRectangleReady(self, "info", self.settings.info)
         self.need_resize.append(self.info)
-        self.title = TextedRectangleReady(self, "title", self.settings.title)
-        self.need_resize.append(self.title)
+        self.text = ProgressedTextedRectangleReady(self,
+                                                   "classe"
+                                                   "s_name",
+                                                   "test",
+                                                   self.settings.colors["classes_progress"])
+        self.need_resize.append(self.text)
 
     def __cycle_works(self):
         self.__insert_time()
         self.resize()
+        self.text.update_widget(progress=0.5)
         self.after(1000, self.__cycle_works)
 
     def __insert_time(self):
