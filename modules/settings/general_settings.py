@@ -37,6 +37,8 @@ class Settings:
             self.fonts = {
                 "info": convert_font(root, {"size": 25}),
                 "title": convert_font(root, {"size": 25}),
+                "classes_name": convert_font(root, {"size": 25}),
+                "classes_time": convert_font(root, {"size": 25}),
                 "key": None,
                 "value": None
             }
@@ -63,15 +65,15 @@ class Settings:
             self.colors = colors
         else:
             self.colors = {
-                "info_bg": ("black", .6),
-                "info_fg": ("white", 1),
-                "day_bg": ("black", .6),
-                "day_fg": ("white", 1),
+                "info_bg": ("black", .62),
+                "info_fg": ("#c8c8c8", 1),
+                "day_bg": ("black", .62),
+                "day_fg": ("#c8c8c8", 1),
                 "classes_time_bg": ("black", .6),
                 "classes_time_fg": ("white", 1),
-                "classes_name_bg": ("white", .2),
+                "classes_name_bg": ("#5078c8", .2),
                 "classes_name_fg": ("white", 1),
-                "classes_progress": ("white", .6)
+                "classes_progress": ("#c8c8c8", .62)
             }
             
         self.info = info

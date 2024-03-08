@@ -20,6 +20,7 @@ class Class:
         self.cycle_c_index: int = content.get("cycle_class_index")
         self.no_time: bool = content.get("no_time_duration")
         self.style = content.get("style")
+        self.custom_text = content.get("custom_text", "Untitled")
 
         if content.get("time_duration_index"):
             self.begin_time = tdi[content["time_duration_index"]]["begin_time"]
@@ -35,7 +36,7 @@ class Class:
 
     def get_duration(self) -> Union[Tuple[datetime, datetime], None]:
         if self.no_time:
-            return None
+            return self.custom_text
         begin = datetime.strptime(self.begin_time, "%H:%M")
         end = datetime.strptime(self.end_time, "%H:%M")
         now = datetime.now()
@@ -43,32 +44,28 @@ class Class:
         end = end.replace(now.year, now.month, now.day)
         return begin, end
 
-    def get_left(self, percentage: bool = False) -> Union[timedelta, float, None]:
+    def get_left(self) -> Union[dict, None]:
         if self.no_time:
-            return None
+            return {"percentage": 0, "timedelta": timedelta(0)}
         now = datetime.now()
         begin, end = self.get_duration()
         if begin > now:
-            if percentage:
-                return 1
-            return end - begin
+            return {"percentage": 1, "timedelta": end - begin}
         if end < now:
-            if percentage:
-                return 0
-            return timedelta(0)
-        if percentage:
-            return (end - now).seconds / (end - begin).seconds
-        return now - end
+            return {"percentage": 0, "timedelta": timedelta(0)}
+        return {"percentage": (end - now).seconds / (end - begin).seconds, "timedelta": now - end}
 
-    def to_use(self, percentage: bool = False) -> dict:
+    def to_use(self) -> dict:
         classname = self.get_classname()
         duration = self.get_duration()
-        left = self.get_left(percentage)
+        left = self.get_left()
         return {
             "classname": classname,
             "duration": duration,
             "left": left,
-            "style": self.style
+            "style": self.style,
+            "no_time": self.no_time,
+            "self": self
         }
 
     def to_save(self):
@@ -80,9 +77,7 @@ class ADay:
                  classes: list,
                  tdi: List[dict],
                  cci: List[list],
-                 cccs: datetime,
-                 percentage: bool = False) -> None:
-        self.percentage = percentage
+                 cccs: datetime) -> None:
         self.classes_raw = classes
         self.__classes = []
         for _class in classes:
@@ -97,7 +92,7 @@ class ADay:
         self.__num += 1
         if self.__num >= len(self.__classes):
             raise StopIteration
-        return self.__classes[self.__num].to_use(self.percentage)
+        return self.__classes[self.__num].to_use()
 
     def to_save(self):
         return self.classes_raw
@@ -108,8 +103,7 @@ class ClassesSettings:
                  classes: dict = None,
                  tdi: list = None,
                  cci: list = None,
-                 cccs: str = "1900-01-01",
-                 percentage: bool = False) -> None:
+                 cccs: str = "1900-01-01") -> None:
         if tdi:
             self.time_duration_indexes = tdi
         else:
@@ -119,15 +113,13 @@ class ClassesSettings:
         else:
             self.cycle_class_indexes = []
         self.cycle_class_count_start = datetime.strptime(cccs, "%Y-%m-%d")
-        self.percentage = percentage
         self.__classes = {}
         if classes:
             for k, v in classes.items():
                 self.__classes[k] = ADay(v,
                                          self.time_duration_indexes,
                                          self.cycle_class_indexes,
-                                         self.cycle_class_count_start,
-                                         self.percentage)
+                                         self.cycle_class_count_start)
         else:
             for k in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]:
                 self.__classes[k] = ADay([],
@@ -143,7 +135,6 @@ class ClassesSettings:
         for k, v in self.__classes.items():
             classes[k] = v.to_save()
         return {
-            "percentage": self.percentage,
             "time_duration_indexes": self.time_duration_indexes,
             "cycle_class_indexes": self.cycle_class_indexes,
             "cycle_class_count_start": self.cycle_class_count_start.strftime("%Y-%m-%d"),
@@ -156,7 +147,7 @@ def save_classes_settings(settings: ClassesSettings, path: str = "classes.json5"
         dump(settings.to_save(), f, ensure_ascii=False, indent=2)
 
 
-def load_classes_settings(path: str = "classes.json5", debug: bool = False):
+def load_classes_settings(path: str = "classes.json5", debug: bool = False) -> ClassesSettings:
     if exists(path):
         try:
             with open(path, 'r', encoding="utf-8") as f:
@@ -164,8 +155,7 @@ def load_classes_settings(path: str = "classes.json5", debug: bool = False):
                 return ClassesSettings(raw["classes"],
                                        raw["time_duration_indexes"],
                                        raw["cycle_class_indexes"],
-                                       raw["cycle_class_count_start"],
-                                       raw["percentage"])
+                                       raw["cycle_class_count_start"])
         except (KeyError, TypeError, AttributeError, ValueError) as e:
             if debug:
                 raise e

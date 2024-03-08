@@ -97,18 +97,21 @@ class TextedRectangle:
         """重置窗口位置
 
         Args:
-            x (int): 窗口左上角的横坐标。
-            y (int): 窗口左上角的纵坐标。
+            x (int): 占位符左上角的横坐标。
+            y (int): 占位符左上角的纵坐标。
         """
         if "n" in self.override_anchor:
             pass
         elif "s" in self.override_anchor:
-            x = self.full_height - x - 2 * self.pad
+            y += self.full_height - self.height - 2 * self.pad
         if "w" in self.override_anchor:
             pass
         elif "e" in self.override_anchor:
-            y = self.full_width - y - 2 * self.pad
-        print(self.width, self.height)
+            x += self.full_width - self.width - 2 * self.pad
+        if self.width < 0:
+            self.width = 0
+        if self.height < 0:
+            self.height = 0
         self.rectangle.wm_geometry(f"{self.width}x{self.height}"
                                    f"+{x + self.pad}+{y + self.pad}")
         self.text_window.wm_geometry(f"{self.width}x{self.height}"
@@ -145,11 +148,11 @@ class TextedRectangle:
             self.font = font
         if pad:
             self.pad = pad
-        if override_anchor:
+        if override_anchor is not None:
             self.override_anchor = override_anchor
-        if override_height:
+        if override_height is not None:
             self.height = override_height
-        if override_width:
+        if override_width is not None:
             self.width = override_width
 
         self.text_label.configure(text=self.text,
@@ -166,6 +169,10 @@ class TextedRectangle:
             self.text_antialiasing.configure(text="")
         else:
             self.text_antialiasing.configure(text=self.text)
+
+    def destroy(self) -> None:
+        self.rectangle.destroy()
+        self.text_window.destroy()
 
     def __init_windows(self) -> None:
         self.rectangle = BorderlessTransparentToplevel(self.root,
@@ -192,7 +199,8 @@ class TextedRectangle:
 
 
 class TextedRectangleReady:
-    def __init__(self, root, rec_type: str, text: str, frame: Frame = None) -> None:
+    def __init__(self, root, rec_type: str, text: str,
+                 frame: Frame = None, width: str = None, height: str = None) -> None:
         """
         预配置的带文字的矩形
         Args:
@@ -204,11 +212,20 @@ class TextedRectangleReady:
         self.root = root
         self.rec_type = rec_type
         self.text = text
+        if width:
+            self.width = width
+        else:
+            self.width = root.settings.widget_widths[rec_type]
+        if height:
+            self.height = height
+        else:
+            self.height = root.settings.widget_heights[rec_type]
+        self.frame = frame
         self.placeholder = Canvas(frame if frame else root,
                                   bg=root.transparent_color if not root.settings.debug else "green",
                                   highlightthickness=0,
-                                  width=root.settings.widget_widths[rec_type] + root.settings.widget_pad * 2,
-                                  height=root.settings.widget_heights[rec_type] + root.settings.widget_pad * 2)
+                                  width=self.width + root.settings.widget_pad * 2,
+                                  height=self.height + root.settings.widget_pad * 2)
         self.placeholder.pack(anchor="e", side="right" if frame else "top")
         self.placeholder.update()
         self.rectangle = TextedRectangle(root,
@@ -220,8 +237,15 @@ class TextedRectangleReady:
                                          root.settings.widget_pad,
                                          root.transparent_color)
 
-    def resize_work(self, wrootx, wrooty) -> None:
-        self.rectangle.resize_work(wrootx + self.placeholder.winfo_x(), wrooty + self.placeholder.winfo_y())
+    def destroy(self) -> None:
+        self.rectangle.destroy()
+        self.placeholder.destroy()
+
+    def resize_work(self, wrootx, wrooty) -> Tuple[int, int]:
+        px = self.placeholder.winfo_x() + self.frame.winfo_x() if self.frame else 0
+        py = self.placeholder.winfo_y() + self.frame.winfo_y() if self.frame else 0
+        self.rectangle.resize_work(wrootx + px, wrooty + py)
+        return px, py
 
     def update_widget(self, width=None, height=None, *args, **kwargs) -> None:
         if width:
@@ -237,24 +261,43 @@ class ProgressedTextedRectangleReady(TextedRectangleReady):
                  rec_type: str,
                  text: str,
                  progress_color: Tuple[str, float],
-                 frame: Frame = None) -> None:
-        super().__init__(root, rec_type, text, frame)
+                 progress: float = 1,
+                 frame: Frame = None,
+                 width: str = None,
+                 height: str = None) -> None:
+        super().__init__(root, rec_type, text, frame, width, height)
         self.progress_color = progress_color
-        self.progress_mask = TextedRectangle(root,
+        self.progress = progress
+        self.progress_mask = TextedRectangle(self.rectangle.rectangle,
                                              self.placeholder,
                                              self.progress_color,
-                                             ("", 1),
+                                             ("", 0),
                                              pad=self.root.settings.widget_pad,
-                                             override_anchor="s")
+                                             override_anchor="s",
+                                             override_height=int(self.placeholder.winfo_height() * self.progress))
 
-    def update_widget(self, width=None, height=None, progress=1, progress_color=None, *args, **kwargs) -> None:
+    def destroy(self) -> None:
+        super().destroy()
+        self.progress_mask.destroy()
+
+    def update_widget(self, width=None, height=None, progress=None, progress_color=None, *args, **kwargs) -> None:
         super().update_widget(width, height, *args, **kwargs)
         if progress_color:
             self.progress_color = progress_color
-        height = int(self.placeholder.winfo_height() * progress)
-        self.progress_mask.update_widget(bgcolor=self.progress_color,
-                                         override_height=height)
+        if progress:
+            self.progress = progress
+            height = int((self.placeholder.winfo_height() - 2 * self.root.settings.widget_pad) * self.progress)
+        else:
+            height = int((self.placeholder.winfo_height() - 2 * self.root.settings.widget_pad) * self.progress)
+        if self.progress <= 0:
+            self.progress_mask.rectangle.wm_attributes("-transparentcolor", self.progress_color[0])
+        else:
+            self.progress_mask.rectangle.wm_attributes("-transparentcolor", None)
+            self.progress_mask.update_widget(bgcolor=self.progress_color,
+                                             override_height=height)
 
-    def resize_work(self, wrootx, wrooty) -> None:
-        super().resize_work(wrootx, wrooty),
-        self.progress_mask.resize_work(wrootx, wrooty)
+    def resize_work(self, wrootx, wrooty) -> Tuple[int, int]:
+        px, py = super().resize_work(wrootx, wrooty)
+        self.progress_mask.resize_work(wrootx + px, wrooty + py)
+        # print(self.progress)
+        return px, py
