@@ -49,19 +49,24 @@ class MyWindow(Tk):
     def __init_widgets(self):
         self.info = TextedRectangleReady(self, "info", self.settings.info)
         self.need_resize.append(self.info)
+        title_day_frame = Frame(self)
+        title_day_frame.pack()
+        widget_height = self.settings.widget_heights["pairs"]
+        widget_left_width = self.settings.widget_widths["pairs_left"]
+        widget_right_width = self.settings.widget_widths["info"] - widget_left_width - 2 * self.settings.widget_pad
+        self.day = TextedRectangleReady(self, "day", datetime.now().strftime("%A"), title_day_frame,
+                                        width=widget_left_width, height=widget_height)
+        self.need_resize.append(self.day)
+        self.title_text = TextedRectangleReady(self, "title", self.settings.title, title_day_frame,
+                                               width=widget_right_width, height=widget_height)
+        self.need_resize.append(self.title_text)
         self.__create_classes()
-        # self.__delete_classes()
-        # frame = Frame(self)
-        # frame.pack()
-        # t1 = TextedRectangleReady(self, "info", "t1", frame, 100, 60)
-        # t2 = TextedRectangleReady(self, "info", "t2", frame, 100, 60)
-        # self.need_resize.append(t1)
-        # self.need_resize.append(t2)
 
     def __create_classes(self):
         self.classes_frames = []
         self.classes_times = []
         self.need_progress = {}
+        print(self.classes_settings.get_daily().classes_raw)
         for item in self.classes_settings.get_daily():
             frame = Frame(self)
             frame.pack()

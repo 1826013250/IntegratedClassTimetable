@@ -22,7 +22,7 @@ class Class:
         self.style = content.get("style")
         self.custom_text = content.get("custom_text", "Untitled")
 
-        if content.get("time_duration_index"):
+        if isinstance(content.get("time_duration_index"), int):
             self.begin_time = tdi[content["time_duration_index"]]["begin_time"]
             self.end_time = tdi[content["time_duration_index"]]["end_time"]
         else:
@@ -127,7 +127,9 @@ class ClassesSettings:
                                          self.cycle_class_indexes,
                                          self.cycle_class_count_start)
 
-    def get_daily(self, day: str = datetime.now().strftime("%A")) -> ADay:
+    def get_daily(self, day: str = None) -> ADay:
+        if day is None:
+            day = datetime.now().strftime("%A")
         return self.__classes[day]
 
     def to_save(self) -> dict:

@@ -16,6 +16,7 @@ class Settings:
                  widget_widths: dict = None,
                  colors: dict = None,
                  info: str = "%Y/%m/%d %a %H:%M",
+                 title: str = "课程表",
                  debug: bool = False):
         self.root = root
         self.debug = debug
@@ -35,12 +36,11 @@ class Settings:
             self.fonts = fonts_dict
         else:
             self.fonts = {
-                "info": convert_font(root, {"size": 25}),
+                "info": convert_font(root, {"size": 20}),
                 "title": convert_font(root, {"size": 25}),
+                "day": convert_font(root, {"size": 25}),
                 "classes_name": convert_font(root, {"size": 25}),
-                "classes_time": convert_font(root, {"size": 25}),
-                "key": None,
-                "value": None
+                "classes_time": convert_font(root, {"size": 20}),
             }
         
         self.widget_pad = widget_pad  # 组件之间间隔
@@ -67,6 +67,8 @@ class Settings:
             self.colors = {
                 "info_bg": ("black", .62),
                 "info_fg": ("#c8c8c8", 1),
+                "title_bg": ("black", .62),
+                "title_fg": ("#c8c8c8", 1),
                 "day_bg": ("black", .62),
                 "day_fg": ("#c8c8c8", 1),
                 "classes_time_bg": ("black", .6),
@@ -75,7 +77,7 @@ class Settings:
                 "classes_name_fg": ("white", 1),
                 "classes_progress": ("#c8c8c8", .62)
             }
-            
+        self.title = title
         self.info = info
     
         
@@ -89,6 +91,7 @@ def dict2class(adict, root):
         adict["widget_widths"],
         adict["colors"],
         adict["info"],
+        adict["title"],
         adict["debug"]
     )
     
@@ -108,6 +111,7 @@ def class2dict(aclass: Settings):
         "widget_widths": aclass.widget_widths,
         "colors": aclass.colors,
         "info": aclass.info,
+        "title": aclass.title,
         "debug": aclass.debug
     }
 

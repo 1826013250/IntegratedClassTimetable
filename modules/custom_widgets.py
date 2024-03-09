@@ -235,7 +235,7 @@ class TextedRectangleReady:
                                          text,
                                          root.settings.fonts[rec_type],
                                          root.settings.widget_pad,
-                                         root.transparent_color)
+                                         root.settings.colors[rec_type+"_bg"][0])
 
     def destroy(self) -> None:
         self.rectangle.destroy()
@@ -284,7 +284,7 @@ class ProgressedTextedRectangleReady(TextedRectangleReady):
         super().update_widget(width, height, *args, **kwargs)
         if progress_color:
             self.progress_color = progress_color
-        if progress:
+        if progress is not None:
             self.progress = progress
             height = int((self.placeholder.winfo_height() - 2 * self.root.settings.widget_pad) * self.progress)
         else:
@@ -299,5 +299,4 @@ class ProgressedTextedRectangleReady(TextedRectangleReady):
     def resize_work(self, wrootx, wrooty) -> Tuple[int, int]:
         px, py = super().resize_work(wrootx, wrooty)
         self.progress_mask.resize_work(wrootx + px, wrooty + py)
-        # print(self.progress)
         return px, py
